@@ -194,7 +194,7 @@ public class RegisterUserService {
 				   roles=roles.substring(0, roles.length() - 1);  
 			   }else {
 				   roles="";
-			   }			   
+			   } 				   
 				System.out.println(roles);
 
 			   int check= registerUserRepository.giveRoleByAdmin(addingRolesRequest.getAccountType(),addingRolesRequest.getUserId(),roles);
