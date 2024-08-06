@@ -4,10 +4,12 @@ package mr.buddies.projects.ScrutinyGlobal.controller;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import mr.buddies.projects.ScrutinyGlobal.dto.AddingRolesRequest;
 import mr.buddies.projects.ScrutinyGlobal.dto.OtpVerifing;
 import mr.buddies.projects.ScrutinyGlobal.dto.RegisterRequest;
 import mr.buddies.projects.ScrutinyGlobal.dto.SettingRoleRquest;
@@ -40,6 +43,7 @@ import mr.buddies.projects.ScrutinyGlobal.model.RegisterUser;
 import mr.buddies.projects.ScrutinyGlobal.model.VenderDetails;
 import mr.buddies.projects.ScrutinyGlobal.services.CountryService;
 import mr.buddies.projects.ScrutinyGlobal.services.RegisterUserService;
+import mr.buddies.projects.ScrutinyGlobal.services.SendSmsService;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -52,8 +56,11 @@ public class RegisterController {
 	@Autowired
 	private CountryService countryService;
 	
+	@Autowired
+	private SendSmsService sendSmsService;
+	
 	@PostMapping("/saveRegisterUser")
-	public ResponseEntity<?> saveRegisterUser(@RequestBody RegisterRequest registerRequest) throws ErrorMsgException, UserAlreadyExist {
+	public ResponseEntity<?> saveRegisterUser(@RequestBody @Valid RegisterRequest registerRequest) throws ErrorMsgException, UserAlreadyExist {
 		
 		HttpSession session=SessionStore.getSession();
 		RegisterUser registerUser =new RegisterUser();
@@ -168,11 +175,17 @@ public class RegisterController {
 	public boolean otpSendOnMail(@RequestBody OtpVerifing otpVerifing) throws UserAlreadyExist  {
 		
 		HttpSession session=SessionStore.getSession();
-		 	
-			 registerUserService.sendOtpOnMail(otpVerifing.getEmail(),session);
+		 	if(otpVerifing.getNumber().length()!=0) {
+		 		sendSmsService.sendSms(otpVerifing.getNumber(),otpVerifing.getEmail(),session);
+		 		
+
+		 	}
+		 	else {
+		 		 registerUserService.sendOtpOnMail(otpVerifing.getEmail(),session);
+		 	}
+//			 registerUserService.sendOtpOnMail(otpVerifing.getEmail(),session);
 //			 System.out.println(session.getAttribute("userEmail")+"-----email");
-				System.out.println(session.getAttribute("userOtp")+"-----userOtp");
-//				System.out.println(session.getAttribute("userOtpTime")+"-----userOtpTime");
+				//				System.out.println(session.getAttribute("userOtpTime")+"-----userOtpTime");
 
 	       
 		 return true;
@@ -219,12 +232,30 @@ public class RegisterController {
 		venderDetails.setBankBranchAddress(venderRequest.getBankBranchAddress());	
 		venderDetails.setAccountNumber(venderRequest.getAccountNumber());	
 		venderDetails.setIfscCode(venderRequest.getIfscCode());	
-		venderDetails.setAccountType(venderRequest.getAccountType());	
+		venderDetails.setBankAccountType(venderRequest.getAccountType());	
 		boolean result=registerUserService.addVender(registerUser, venderDetails);
 		
 		return ResponseEntity.ok(result);
 		
 		
+	}
+	
+	@GetMapping("/getRoleGivenByAdmin")
+	public ResponseEntity<?> getRoleGivenByAdmin(@RequestParam(name = "userid") Integer userid) throws Exception {
+		
+		Map<String,String> grtRoles=new HashMap<>();
+		String roles=registerUserService.getRoleGivenByAdmin(userid);
+		grtRoles.put("roles", roles);
+		 return ResponseEntity.ok(grtRoles);
+		 
+	}
+	
+	@PostMapping("/giveRoleByAdmin")
+	public ResponseEntity<?> giveRoleByAdmin(@RequestBody AddingRolesRequest addingRolesRequest) throws Exception {
+		boolean roles=registerUserService.giveRoleByAdmin(addingRolesRequest);
+	
+		 return ResponseEntity.ok(roles);
+		 
 	}
 	
 

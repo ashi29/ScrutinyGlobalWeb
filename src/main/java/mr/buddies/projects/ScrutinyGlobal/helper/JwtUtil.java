@@ -3,10 +3,13 @@ package mr.buddies.projects.ScrutinyGlobal.helper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.internal.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +26,9 @@ public class JwtUtil {
     public static final long JWT_TOKEN_VALIDITY = 5 * 60 * 60;
 
 
-    private String secret="java";
+//    private String secret="fsdsfhdfjhfdhfkdjhfkdhfkdjfkdshf";
+    @Autowired
+    private Key jwtSigningKey;
 
     //retrieve username from jwt token
     public String getUsernameFromToken(String token) {
@@ -41,7 +46,7 @@ public class JwtUtil {
     }
     //for retrieveing any information from token we will need the secret key
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(jwtSigningKey).parseClaimsJws(token).getBody();
     }
 
     //check if the token has expired
@@ -65,7 +70,7 @@ public class JwtUtil {
 
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+                .signWith(SignatureAlgorithm.HS512, jwtSigningKey).compact();
     }
 
     //validate token

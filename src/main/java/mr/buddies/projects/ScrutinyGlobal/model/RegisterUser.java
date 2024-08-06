@@ -2,6 +2,7 @@ package mr.buddies.projects.ScrutinyGlobal.model;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,6 +33,8 @@ public class RegisterUser {
 	    private String accountType;
 	    private String address;
 	    private String monthlySalary;
+	    @Column(nullable = false, columnDefinition = "varchar(255) default 'ALL'")
+	    private String roles;
 	    private Integer otp;
 	    private Integer aprove;
 	    private Date createTime;
@@ -155,13 +158,20 @@ public class RegisterUser {
 		public void setUpdateTime(Date updateTime) {
 			this.updateTime = updateTime;
 		}
+		
+		public String getRoles() {
+			return roles;
+		}
+		public void setRoles(String roles) {
+			this.roles = roles;
+		}
 		public RegisterUser() {
 			super();
 			// TODO Auto-generated constructor stub
 		}
 		public RegisterUser(Integer userId, String name, String email, String password, String number,
 				String countryCode, Date dob, String country, String state, String city, String zipcode,
-				String profession, String accountType, String address, String monthlySalary, Integer otp,
+				String profession, String accountType, String address, String monthlySalary, String roles, Integer otp,
 				Integer aprove, Date createTime, Date updateTime) {
 			super();
 			this.userId = userId;
@@ -179,11 +189,13 @@ public class RegisterUser {
 			this.accountType = accountType;
 			this.address = address;
 			this.monthlySalary = monthlySalary;
+			this.roles = roles;
 			this.otp = otp;
 			this.aprove = aprove;
 			this.createTime = createTime;
 			this.updateTime = updateTime;
 		}
+		
 		
 	    
 	    

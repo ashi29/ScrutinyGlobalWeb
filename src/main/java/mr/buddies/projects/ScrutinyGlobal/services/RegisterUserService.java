@@ -15,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import mr.buddies.projects.ScrutinyGlobal.dto.AddingRolesRequest;
 import mr.buddies.projects.ScrutinyGlobal.dto.OtpVerifing;
 import mr.buddies.projects.ScrutinyGlobal.dto.RegisterRequest;
 import mr.buddies.projects.ScrutinyGlobal.dto.SettingRoleRquest;
@@ -149,7 +150,7 @@ public class RegisterUserService {
 					   venderDetails.setBankBranchAddress(settingRoleRquest.getBankBranchAddress());
 					   venderDetails.setAccountNumber(settingRoleRquest.getAccountNumber());
 					   venderDetails.setIfscCode(settingRoleRquest.getIfscCode());
-					   venderDetails.setAccountType(settingRoleRquest.getAccountType());
+					   venderDetails.setBankAccountType(settingRoleRquest.getAccountType());
 					   
 					   
 					   venderRepository.save(venderDetails);
@@ -165,6 +166,43 @@ public class RegisterUserService {
 			   return true;
 			   
 			   
+		   }
+		   public String getRoleGivenByAdmin(Integer userId) {
+			   
+			   String roles=registerUserRepository.getRoleGivenByAdmin(userId);
+			   
+			   return roles;
+			   
+		   }
+		   
+		   @Transactional
+		   public boolean giveRoleByAdmin(AddingRolesRequest addingRolesRequest) {
+			   
+			   String roles=getRoleGivenByAdmin(addingRolesRequest.getUserId());
+			   
+			   if(roles.toUpperCase().equals("ALL")||roles.isEmpty())
+			   {
+				   roles="";
+			   }else
+			   {
+				   roles=roles+",";
+			   }
+			   if(!addingRolesRequest.getRoles().isEmpty()) {
+				   for (String item : addingRolesRequest.getRoles()) {
+					   roles=roles+item+",";
+			        }
+				   roles=roles.substring(0, roles.length() - 1);  
+			   }else {
+				   roles="";
+			   }			   
+				System.out.println(roles);
+
+			   int check= registerUserRepository.giveRoleByAdmin(addingRolesRequest.getAccountType(),addingRolesRequest.getUserId(),roles);
+					   
+					   if (check==1)
+			   return true;
+					   else
+						   return false;
 		   }
 		   
 		   public List<Map<String,Object>> getListAsAccountType(String accountType) throws Exception {
@@ -186,7 +224,6 @@ public class RegisterUserService {
 		   
 		   public boolean addVender(RegisterUser registerUser,VenderDetails venderDetails) {
 			   
-			   
 				try {					
 					  registerUserRepository.save(registerUser);
 					   venderRepository.save(venderDetails);
@@ -198,6 +235,12 @@ public class RegisterUserService {
 				}
 		   }
 		   
+		   public Map<String,Object> getUserDetails(String userEmail) {
+			   
+			   
+			   return  registerUserRepository.getUserDetails(userEmail);
+					
+			   }
 		   
 		   
 }

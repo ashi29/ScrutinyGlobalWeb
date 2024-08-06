@@ -45,7 +45,11 @@
 	      <groupId>org.springframework.session</groupId>
 	      <artifactId>spring-session-core</artifactId>
 	    </dependency>
-	     
+	     <dependency>
+			<groupId>com.twilio.sdk</groupId>
+			<artifactId>twilio</artifactId>
+			<version>8.1.0</version>
+		</dependency>
 
 
         <dependency>
@@ -83,7 +87,10 @@
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <artifactId>spring-boot-maven-plugin</artifactId>	
+                <configuration>
+					<executable>true</executable>
+				</configuration>            
             </plugin>
         </plugins>
     </build>

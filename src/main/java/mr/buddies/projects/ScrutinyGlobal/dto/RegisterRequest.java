@@ -2,14 +2,20 @@ package mr.buddies.projects.ScrutinyGlobal.dto;
 
 import java.sql.Date;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class RegisterRequest {
 
 	    private Integer userId;
+	    @NotNull(message = "User name can't be blank")
 	    private String name;
+	    @Email(message = "Plz enter valid email Id")
 	    private String email;
 	    private String password;
+	    
 	    private String number;
 	    private String countryCode;
 	    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

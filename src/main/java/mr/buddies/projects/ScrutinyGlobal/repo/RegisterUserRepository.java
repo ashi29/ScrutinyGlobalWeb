@@ -48,11 +48,20 @@ public interface RegisterUserRepository extends JpaRepository<RegisterUser, Inte
 	 @Query("UPDATE RegisterUser  ru SET ru.accountType = :accountType , ru.aprove = 1  WHERE ru.userId = :userId and ru.aprove != 1")
 	 public Integer giveRoleToUser(@Param("accountType") String accountType,@Param("userId") Integer userId);
 	 
+	 @Modifying
+	  @Transactional
+	 @Query("UPDATE RegisterUser  ru SET ru.roles = :roles  WHERE ru.userId = :userId and ru.accountType = :accountType and ru.aprove = 1")
+	 public Integer giveRoleByAdmin(@Param("accountType") String accountType,@Param("userId") Integer userId,@Param("roles") String roles);
+	 
 	 @Query(value = "SELECT * FROM register_user ru join client_details cd  on ru.user_id=cd.client_id", nativeQuery = true)
 	 	public List<Map<String,Object>> getListAsClient();
 	 
 	 @Query(value = "SELECT * FROM register_user ru join vender_details vd  on ru.user_id=vd.vender_id", nativeQuery = true)
 	 	public List<Map<String,Object>> getListAsVender();
 	 
-
+	 @Query(value = "SELECT roles FROM register_user ru WHERE ru.user_id = :userId", nativeQuery = true)
+	 	public String getRoleGivenByAdmin(@Param("userId") Integer userId);
+	 
+	 @Query(value = "SELECT * FROM register_user ru where ru.email=:userEmail", nativeQuery = true)
+	 	public Map<String,Object> getUserDetails(@Param("userEmail") String userEmail);
 }

@@ -132,6 +132,9 @@ public class ProjectController {
         	if(type.equals("project")) {
         		projectService.setDocumentDetailsForProject(mappingId,documentDetails);
         	}
+        	if(type.equals("vender")) {
+        		projectService.setDocumentDetailsForVender(mappingId, documentDetails);
+        	}
         	
         	
 //         registerUserService
@@ -141,6 +144,5 @@ public class ProjectController {
             return "Failed to upload file: " + file.getOriginalFilename();
         }
     }
-	
 
 }
