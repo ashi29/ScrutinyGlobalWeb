@@ -5,6 +5,7 @@ import java.util.Random;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.twilio.Twilio;
 import com.twilio.http.HttpMethod;
@@ -15,9 +16,10 @@ import com.twilio.type.PhoneNumber;
 @Service
 public class SendSmsService {
 
-	
-	private final String ACCOUNT_SID="AC462f7907d2bb5579f7f1e2045bf5fc25";
-	private final String AUTH_TOKEN="7449f1f8aeaa18372918eb31741e78d2";
+	@Value("${twilio.account.sid}")
+	private String ACCOUNT_SID;
+	@Value("${twilio.auth.token}")
+	private String AUTH_TOKEN;
 	private final String SENDER="+17206276838";
 	
 
