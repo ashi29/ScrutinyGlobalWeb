@@ -212,7 +212,7 @@ public class RegisterUserService {
 			   if(accountType.toUpperCase().equals("CLIENT")) 
 				   registerRequestList =registerUserRepository.getListAsClient();
 							   
-			   if(accountType.toUpperCase().equals("VENDER")) 
+			   if(accountType.toUpperCase().equals("VENDOR")) 
 				   registerRequestList= registerUserRepository.getListAsVender();   
 			   
 			   return registerRequestList;
