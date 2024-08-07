@@ -1,5 +1,7 @@
 package mr.buddies.projects.ScrutinyGlobal.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,4 +20,7 @@ public class CountryService {
 		countryRepository.save(countryData);
 	}
 	
+	public List<CountryData> getALlCountries(){
+		return countryRepository.findAll();
+	}
 }

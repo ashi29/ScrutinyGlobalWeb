@@ -1,6 +1,5 @@
 package mr.buddies.projects.ScrutinyGlobal.controller;
 
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -49,24 +48,25 @@ import mr.buddies.projects.ScrutinyGlobal.services.SendSmsService;
 @CrossOrigin(origins = "*")
 @RequestMapping("/ScrutinyGlobal")
 public class RegisterController {
-	
+
 	@Autowired
 	private RegisterUserService registerUserService;
-	
+
 	@Autowired
 	private CountryService countryService;
-	
+
 	@Autowired
 	private SendSmsService sendSmsService;
-	
-	@PostMapping("/saveRegisterUser")
-	public ResponseEntity<?> saveRegisterUser(@RequestBody @Valid RegisterRequest registerRequest) throws ErrorMsgException, UserAlreadyExist {
-		
-		HttpSession session=SessionStore.getSession();
-		RegisterUser registerUser =new RegisterUser();
 
-		if(registerRequest.getEmail().equals(session.getAttribute("userEmail"))) {
-			if(registerRequest.getOtp().equals(session.getAttribute("userOtp"))) {
+	@PostMapping("/saveRegisterUser")
+	public ResponseEntity<?> saveRegisterUser(@RequestBody @Valid RegisterRequest registerRequest)
+			throws ErrorMsgException, UserAlreadyExist {
+
+		HttpSession session = SessionStore.getSession();
+		RegisterUser registerUser = new RegisterUser();
+
+		if (registerRequest.getEmail().equals(session.getAttribute("userEmail"))) {
+			if (registerRequest.getOtp().equals(session.getAttribute("userOtp"))) {
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 				registerUser.setName(registerRequest.getName());
 				registerUser.setEmail(registerRequest.getEmail());
@@ -86,136 +86,145 @@ public class RegisterController {
 				registerUser.setAprove(0);
 				registerUser.setCreateTime(new Date());
 				registerUser.setUpdateTime(new Date());
-				
-			}
-			else {
+
+			} else {
 				throw new ErrorMsgException("Wrong Otp");
 			}
-		}else {
-			
+		} else {
+
 			throw new UserAlreadyExist("User not match");
-		} 
-			 registerUserService.saveRegisterUser(registerUser);
-			 return ResponseEntity.ok(registerRequest);
+		}
+		registerUserService.saveRegisterUser(registerUser);
+		return ResponseEntity.ok(registerRequest);
 	}
-	
+
 	@PostMapping("/saveCountry")
 	public boolean saveCountry(@RequestBody CountryData countryData) throws Exception {
-		
-		 try {
-			 countryService.saveCountry(countryData);		
-	          
 
-	        } catch (UsernameNotFoundException e) {
-	            e.printStackTrace();
-	            throw new Exception("Bad Credentials");
-	        }catch (BadCredentialsException e)
-	        {
-	            e.printStackTrace();
-	            throw new Exception("Bad Credentials");
-	        }
-		 return true;
+		try {
+			countryService.saveCountry(countryData);
+
+		} catch (UsernameNotFoundException e) {
+			e.printStackTrace();
+			throw new Exception("Bad Credentials");
+		} catch (BadCredentialsException e) {
+			e.printStackTrace();
+			throw new Exception("Bad Credentials");
+		}
+		return true;
 	}
 	
+	@GetMapping("/getCountries")
+	public ResponseEntity<?> getAllCountries() throws Exception{
+
+		List<CountryData> requestAllCountriesList =  new ArrayList<CountryData>() ;
+
+		try{
+			requestAllCountriesList = countryService.getALlCountries();
+		}
+		catch(Exception e){
+			e.printStackTrace();
+			throw new ErrorMsgException(e.getMessage());
+		}
+		return ResponseEntity.ok(requestAllCountriesList);
+	}
+
 	@GetMapping("/getAllUserForAprovel")
 	public ResponseEntity<?> getAllUserForAprovel() throws Exception {
-		
-		List<RegisterUser> registerRequestList=new ArrayList<RegisterUser>();
-		 try {
-			 registerRequestList=registerUserService.findAllUserForAprovel();		
-	          
 
-	        } catch (Exception e) {
+		List<RegisterUser> registerRequestList = new ArrayList<RegisterUser>();
+		try {
+			registerRequestList = registerUserService.findAllUserForAprovel();
+
+		} catch (Exception e) {
 //	            e.printStackTrace();
-	            throw new ErrorMsgException(e.getMessage());
-	            
-	        }
-		 return ResponseEntity.ok(registerRequestList);
-		 
+			throw new ErrorMsgException(e.getMessage());
+
+		}
+		return ResponseEntity.ok(registerRequestList);
+
 	}
+
 	@GetMapping("/getAllActiveUserList")
 	public ResponseEntity<?> getAllActiveUserList() throws Exception {
-		
-		List<RegisterUser> registerRequestList=new ArrayList<RegisterUser>();
-		 try {
-			 registerRequestList=registerUserService.getAllActiveUser();		
-	          
 
-	        } catch (Exception e) {
+		List<RegisterUser> registerRequestList = new ArrayList<RegisterUser>();
+		try {
+			registerRequestList = registerUserService.getAllActiveUser();
+
+		} catch (Exception e) {
 //	            e.printStackTrace();
-	            throw new ErrorMsgException(e.getMessage());
-	            
-	        }
-		 return ResponseEntity.ok(registerRequestList);
-		 
+			throw new ErrorMsgException(e.getMessage());
+
+		}
+		return ResponseEntity.ok(registerRequestList);
+
 	}
+
 	@PostMapping("/getUserList")
 	public ResponseEntity<?> getUserList(@RequestBody UserFilter userFilter) throws Exception {
-		
+
 		System.out.println("Inside Controller");
-        System.out.println(userFilter);
-        
-        
-		List<RegisterUser> registerRequestList=new ArrayList<RegisterUser>();
-		 try {
-			 registerRequestList=registerUserService.getUserList(userFilter);		
-	          
+		System.out.println(userFilter);
 
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	            System.out.println(e);
-	            throw new ErrorMsgException(e.getMessage());
-	            
-	        }
-		 return ResponseEntity.ok(registerRequestList);
-		 
+		List<RegisterUser> registerRequestList = new ArrayList<RegisterUser>();
+		try {
+			registerRequestList = registerUserService.getUserList(userFilter);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println(e);
+			throw new ErrorMsgException(e.getMessage());
+
+		}
+		return ResponseEntity.ok(registerRequestList);
+
 	}
-	
-	@PostMapping("/otpsend")
-	public boolean otpSendOnMail(@RequestBody OtpVerifing otpVerifing) throws UserAlreadyExist  {
-		
-		HttpSession session=SessionStore.getSession();
-		 	if(otpVerifing.getNumber().length()!=0) {
-		 		sendSmsService.sendSms(otpVerifing.getNumber(),otpVerifing.getEmail(),session);
-		 		
 
-		 	}
-		 	else {
-		 		 registerUserService.sendOtpOnMail(otpVerifing.getEmail(),session);
-		 	}
+	@PostMapping("/otpsend")
+	public boolean otpSendOnMail(@RequestBody OtpVerifing otpVerifing) throws UserAlreadyExist {
+		System.out.println("ashish");
+		HttpSession session = SessionStore.getSession();
+		if (otpVerifing.getNumber().length() != 0) {
+			System.out.println("ashish77");
+			sendSmsService.sendSms(otpVerifing.getNumber(), otpVerifing.getEmail(), session);
+
+		} else {
+			registerUserService.sendOtpOnMail(otpVerifing.getEmail(), session);
+		}
 //			 registerUserService.sendOtpOnMail(otpVerifing.getEmail(),session);
 //			 System.out.println(session.getAttribute("userEmail")+"-----email");
-				//				System.out.println(session.getAttribute("userOtpTime")+"-----userOtpTime");
+		// System.out.println(session.getAttribute("userOtpTime")+"-----userOtpTime");
 
-	       
-		 return true;
+		return true;
 	}
-	
+
 	@PutMapping("/setroletouser")
 	public boolean giveRoleToUser(@RequestBody SettingRoleRquest settingRoleRquest) {
-		
+
 		return registerUserService.giveRoleToUser(settingRoleRquest);
 //		return true;
-		
+
 	}
 
-	
 	@GetMapping("/getListAsAccountType")
-	public ResponseEntity<?> getListAsAccountType(@RequestParam(name = "accountType") String accountType) throws Exception {
-		
-		List<Map<String,Object>> registerRequestList=new ArrayList<Map<String,Object>>();
-		
-		registerRequestList=registerUserService.getListAsAccountType(accountType);
-		
-		 return ResponseEntity.ok(registerRequestList);
-		 
+	public ResponseEntity<?> getListAsAccountType(@RequestParam(name = "accountType") String accountType)
+			throws Exception {
+
+		List<Map<String, Object>> registerRequestList = new ArrayList<Map<String, Object>>();
+
+		registerRequestList = registerUserService.getListAsAccountType(accountType);
+
+		return ResponseEntity.ok(registerRequestList);
+
 	}
+
 	@PostMapping("/addVender")
-	public ResponseEntity<?> addVender(@RequestBody VenderRequest venderRequest) throws UserAlreadyExist  {
-		
-		RegisterUser registerUser =new RegisterUser();
-		VenderDetails venderDetails =new VenderDetails();
-		
+	public ResponseEntity<?> addVender(@RequestBody VenderRequest venderRequest) throws UserAlreadyExist {
+
+		RegisterUser registerUser = new RegisterUser();
+		VenderDetails venderDetails = new VenderDetails();
+
 		registerUser.setName(venderRequest.getVenderName());
 		registerUser.setNumber(venderRequest.getNumber());
 		registerUser.setEmail(venderRequest.getEmail());
@@ -226,37 +235,35 @@ public class RegisterController {
 		venderDetails.setAlternateNumber(venderRequest.getAlternateNumber());
 		venderDetails.setSuccessURL(venderRequest.getSuccessURL());
 		venderDetails.setTerminateURL(venderRequest.getTerminateURL());
-		venderDetails.setQuotaFullURL(venderRequest.getQuotaFullURL());	
-		venderDetails.setRegisterationNumber(venderRequest.getRegisterationNumber());	
-		venderDetails.setPanNumber(venderRequest.getPanNumber());	
-		venderDetails.setBankBranchAddress(venderRequest.getBankBranchAddress());	
-		venderDetails.setAccountNumber(venderRequest.getAccountNumber());	
-		venderDetails.setIfscCode(venderRequest.getIfscCode());	
-		venderDetails.setBankAccountType(venderRequest.getAccountType());	
-		boolean result=registerUserService.addVender(registerUser, venderDetails);
-		
+		venderDetails.setQuotaFullURL(venderRequest.getQuotaFullURL());
+		venderDetails.setRegisterationNumber(venderRequest.getRegisterationNumber());
+		venderDetails.setPanNumber(venderRequest.getPanNumber());
+		venderDetails.setBankBranchAddress(venderRequest.getBankBranchAddress());
+		venderDetails.setAccountNumber(venderRequest.getAccountNumber());
+		venderDetails.setIfscCode(venderRequest.getIfscCode());
+		venderDetails.setBankAccountType(venderRequest.getAccountType());
+		boolean result = registerUserService.addVender(registerUser, venderDetails);
+
 		return ResponseEntity.ok(result);
-		
-		
+
 	}
-	
+
 	@GetMapping("/getRoleGivenByAdmin")
 	public ResponseEntity<?> getRoleGivenByAdmin(@RequestParam(name = "userid") Integer userid) throws Exception {
-		
-		Map<String,String> grtRoles=new HashMap<>();
-		String roles=registerUserService.getRoleGivenByAdmin(userid);
+
+		Map<String, String> grtRoles = new HashMap<>();
+		String roles = registerUserService.getRoleGivenByAdmin(userid);
 		grtRoles.put("roles", roles);
-		 return ResponseEntity.ok(grtRoles);
-		 
+		return ResponseEntity.ok(grtRoles);
+
 	}
-	
+
 	@PostMapping("/giveRoleByAdmin")
 	public ResponseEntity<?> giveRoleByAdmin(@RequestBody AddingRolesRequest addingRolesRequest) throws Exception {
-		boolean roles=registerUserService.giveRoleByAdmin(addingRolesRequest);
-	
-		 return ResponseEntity.ok(roles);
-		 
+		boolean roles = registerUserService.giveRoleByAdmin(addingRolesRequest);
+
+		return ResponseEntity.ok(roles);
+
 	}
-	
 
 }
